@@ -5,7 +5,7 @@ inline pros::Rotation rotate_sens(4);
 
 const int num_states = 3;
 
-int states[num_states] = {0,-1900,-14500};
+int states[num_states] = {0,-2300,-14500};
 
 int curr_state = 0;
 
@@ -27,12 +27,9 @@ void down_state() {
     target = states[curr_state];
 }
 
-void lift_control() {
-    double kp = 0.05;
-    if (curr_state == 2) {
-        double kp = 0.06;
-    }
+void lift_control() {    
     double error = target - rotate_sens.get_position();
-    double velocity = kp * error;
+    double kP = 0.012;
+    double velocity = kP * error;
     lady_brown.move(velocity);
 }
