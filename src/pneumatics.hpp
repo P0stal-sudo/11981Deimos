@@ -2,9 +2,10 @@
 #include "main.h"
 #include "pros/rotation.hpp"
 
-inline ez::Piston mogo('A', true);
+inline ez::Piston mogo('E', false);
 
 inline ez::Piston doinker('B', false);
 
-inline ez::Piston intake_elev('C', true);
+inline ez::Piston intake_elev('D', true);
 
+inline ez::Piston doinkdoink('C', false);

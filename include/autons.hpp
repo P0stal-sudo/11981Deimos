@@ -3,9 +3,10 @@
 
 void default_constants();
 
-void highstakes_blue_left();
-void highstakes_blue_right();
-void highstakes_red_left();
-void highstakes_red_right();
+void positive_4_alliance_awp();
+void positive_4_goal_rush();
+void negative_6_alliance_awp();
+void negative_6_alliance();
+//void negative_8_solo_awp();
 
 void skills();

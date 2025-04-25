@@ -1,10 +1,12 @@
 #include "main.h"
 #include <iterator>
+#include "autons.hpp"
 #include "pneumatics.hpp"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
 #include "subsystems.hpp"
 #include "lift.cpp"
+#include "color_sort.cpp"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -14,8 +16,8 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {18,-19,-20},  // Left Chassis Ports (negative port will reverse it!)
-    {11,12,-13},  // Right Chassis Ports (negative port will reverse it!)
+    {-13,-14,18},  // Left Chassis Ports (negative port will reverse it!)
+    {7,8,-9},  // Right Chassis Ports (negative port will reverse it!)
 
     21,      // IMU Port
     3.25,   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
@@ -45,6 +47,12 @@ void initialize() {
       pros::delay(20);
     }
   });  
+  pros::Task color_sort_task([]{
+    while (true) {
+      color_sort();
+      pros::delay(500);
+    }
+  });
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
   //  - ignore this if you aren't using a horizontal tracker
@@ -72,12 +80,13 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      {"blue left", highstakes_blue_left},
-      {"blue right", highstakes_blue_right},
-      {"red left", highstakes_red_left},
-      {"red right", highstakes_red_right},
-      {"skills", skills},
-  });
+      Auton("positive 4 point goal rush", positive_4_goal_rush),
+      Auton("postive 4 point awp", positive_4_alliance_awp),
+      Auton("negative 6 point", negative_6_alliance),
+      Auton("negative 6 point awp", negative_6_alliance_awp),
+      //Auton("negative 8 point solo awp", negative_8_solo_awp),
+      Auton("skills", skills),
+    });
 
   // Initialize chassis and auton selector
   chassis.initialize();
@@ -214,7 +223,7 @@ void ez_template_extras() {
       chassis.pid_tuner_toggle();
 
     // Trigger the selected autonomous routine
-    if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN)) {
+    if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN) && master.get_digital(DIGITAL_A)) {
       pros::motor_brake_mode_e_t preference = chassis.drive_brake_get();
       autonomous();
       chassis.drive_brake_set(preference);
@@ -270,14 +279,22 @@ void opcontrol() {
     else {
       intake.move(0);
     }
+    if (master.get_digital_new_press(DIGITAL_UP)) {
+      controller_change_color();
+    }
     if (master.get_digital_new_press(DIGITAL_R1)) {
       up_state();
-    }
+    } 
     else if (master.get_digital_new_press(DIGITAL_R2)) {
       down_state();
+    } 
+    else {
+      
     }
+    
     mogo.button_toggle(master.get_digital(DIGITAL_A));
     doinker.button_toggle(master.get_digital(DIGITAL_B));
+    doinkdoink.button_toggle(master.get_digital(DIGITAL_Y));
     intake_elev.button_toggle(master.get_digital(DIGITAL_DOWN));
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
